@@ -26,12 +26,13 @@ public class PuzzleCompactSurface extends SurfaceView implements SurfaceHolder.C
     private int found = -1;
 
     /** Puzzle and Canvas **/
-    private int MAX_PUZZLE_PIECE_SIZE = 100;
-    private int LOCK_ZONE_LEFT = 20;
-    private int LOCK_ZONE_TOP = 20;
+    private int MAX_PUZZLE_PIECE_SIZE = 165;
+    private int LOCK_ZONE_LEFT = 180;
+    private int LOCK_ZONE_TOP = 65;
 
     private JigsawPuzzle puzzle;
 
+    private BitmapDrawable backgroundImage;
     private BitmapDrawable[] scaledSurfacePuzzlePieces;
     private Rect[] scaledSurfaceTargetBounds;
 
@@ -113,6 +114,12 @@ public class PuzzleCompactSurface extends SurfaceView implements SurfaceHolder.C
         display.getSize(outSize);
 
         puzzle = jigsawPuzzle;
+
+        if (puzzle.isBackgroundTextureOn()) {
+            backgroundImage = new BitmapDrawable(puzzle.getBackgroundTexture());
+            backgroundImage.setBounds(0, 0, 800, 600);
+
+        }
         Random r = new Random();
 
         outsize_y = outSize.y;
@@ -162,16 +169,21 @@ public class PuzzleCompactSurface extends SurfaceView implements SurfaceHolder.C
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        if(canvas == null){
+           return;
+            }
          canvas.drawARGB(255,255,255,144); //
 
-
-            for (int h = 0; h < 11; h++) {
+           backgroundImage.setBounds(0,0,1950,outsize_y);
+        if (puzzle.isBackgroundTextureOn()) {
+            backgroundImage.draw(canvas);    //畫背景
+        }
+            for (int h = 0; h < scaledSurfaceTargetBounds.length; h++) {
 
                 canvas.drawRect(scaledSurfaceTargetBounds[h], framePaint);
             }
 
-        canvas.drawRect(20, 20, 420, 320, framePaint);
+        //canvas.drawRect(20, 20, 420, 320, framePaint);
 
         for (int bmd = 0; bmd < scaledSurfacePuzzlePieces.length; bmd++) {
             if (puzzle.isPieceLocked(bmd)) {
@@ -202,7 +214,7 @@ public class PuzzleCompactSurface extends SurfaceView implements SurfaceHolder.C
                 for (int i = 0; i < scaledSurfacePuzzlePieces.length; i++) {
                     Rect place = scaledSurfacePuzzlePieces[i].copyBounds();
 
-                    if (place.contains(xPos, yPos) && !puzzle.isPieceLocked(i)) {
+                    if (place.contains(xPos, yPos) && !puzzle.isPieceLocked(i) && ispieceGrab[i]) {
                         found = i;
                         //按下拼圖且未被鎖定，即觸發的事件 → 拼圖被撿起
                         puzzle.onJigsawEventPieceGrabbed(found, place.left, place.top);
@@ -222,10 +234,18 @@ public class PuzzleCompactSurface extends SurfaceView implements SurfaceHolder.C
 
                     Rect rect = scaledSurfacePuzzlePieces[found].copyBounds();
 
-                    rect.left = xPos - MAX_PUZZLE_PIECE_SIZE/2;
-                    rect.top = yPos - MAX_PUZZLE_PIECE_SIZE/2;
-                    rect.right = xPos + MAX_PUZZLE_PIECE_SIZE/2;
-                    rect.bottom = yPos + MAX_PUZZLE_PIECE_SIZE/2;
+                    if(xPos >=1620 || yPos >=980){ //防止使用者超出邊界
+                        rect.left += 0;
+                        rect.top += 0;
+                        rect.right += 0;
+                        rect.bottom += 0;
+                    }else{
+                        rect.left = xPos - MAX_PUZZLE_PIECE_SIZE/2;
+                        rect.top = yPos - MAX_PUZZLE_PIECE_SIZE/2;
+                        rect.right = xPos + MAX_PUZZLE_PIECE_SIZE/2;
+                        rect.bottom = yPos + MAX_PUZZLE_PIECE_SIZE/2;
+                    }
+
                     scaledSurfacePuzzlePieces[found].setBounds(rect);
 
                 }

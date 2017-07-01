@@ -121,4 +121,20 @@ public class Puzzle_main extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+    public void onPause() {
+        super.onPause();
+        main_surface.getThread().pause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        main_surface.getThread().saveState(outState);
+
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
 }

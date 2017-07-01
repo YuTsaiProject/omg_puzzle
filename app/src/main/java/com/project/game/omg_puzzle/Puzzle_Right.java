@@ -115,4 +115,20 @@ public class Puzzle_Right extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+    public void onPause() {
+        super.onPause();
+        right_surface.getThread().pause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        right_surface.getThread().saveState(outState);
+
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
 }

@@ -63,15 +63,13 @@ public class JigsawPuzzle {
     public void loadPuzzleResources (Resources res, int resourceId, long targetWidth, long targetHeight) {
          count++; //第一次背景呼叫decodePuzzleBitmapFromResource
 
-        backgroundTexture = decodePuzzleBitmapFromResource(res, R.drawable.background, 800, 800);
+        backgroundTexture = decodePuzzleBitmapFromResource(res, R.drawable.test3, 1000, 1000);
         Log.d("loadPuzzleResource", "getwidth/getheight_" + String.valueOf(count) + " : " + backgroundTexture.getWidth() + " , "+  backgroundTexture.getHeight());
         count++; //第二次照片呼叫decodePuzzleBitmapFromResource
 
         Bitmap decodedPuzzleResource = decodePuzzleBitmapFromResource(
                 res, resourceId, targetWidth, targetHeight);
        //400,300
-
-
 
         puzzleResult = decodedPuzzleResource;
         puzzleXDimension = decodedPuzzleResource.getWidth(); // 800,600
@@ -194,15 +192,12 @@ public class JigsawPuzzle {
         Bundle image = config.getBundle("img");
         Bundle pieces = config.getBundle("pieces");
 
-        // Puzzle Grid
-        puzzleGridX = grid.getInt("ncols"); //4
 
+        puzzleGridX = grid.getInt("ncols"); //4
         puzzleGridY = grid.getInt("nrows"); //3
 
         puzzlePieceHeight = puzzleYDimension / puzzleGridY; //200
-
         puzzlePieceWidth = puzzleXDimension / puzzleGridX; //200
-     //   Log.d("puzzleYDimension ", String.valueOf(puzzleYDimension));
 
         // Fill Puzzle
         puzzlePieceTargetPositions = new int[puzzleGridX][puzzleGridY];
@@ -230,6 +225,7 @@ public class JigsawPuzzle {
     }
 
     /** Getters and Setters **/
+    public Bitmap getPuzzleResult(){return puzzleResult;}
 
     public Bitmap[] getPuzzlePiecesArray () {
         return puzzlePiecesArray;

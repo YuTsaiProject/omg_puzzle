@@ -32,7 +32,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
 
     /** Puzzle and Canvas **/
     private int MAX_PUZZLE_PIECE_SIZE = 120;
-    private int LOCK_ZONE_LEFT = 20;
+    private int LOCK_ZONE_LEFT = 40;
     private int LOCK_ZONE_TOP = 20;
 
     private JigsawPuzzle puzzle;
@@ -134,35 +134,26 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         int[] dimensions = puzzle.getPuzzleDimensions();
         ispieceLocked = new boolean[originalPieces.length];
         isgrabed = new boolean[originalPieces.length];
-
-
+        Random_puzzle();
+        Log.d("test_random", "0");
         scaledSurfacePuzzlePieces = new BitmapDrawable[originalPieces.length];
         scaledSurfaceTargetBounds = new Rect[originalPieces.length];
-
-        Random r = new Random();
-        al=new ArrayList<Integer>();
-        while(al.size()<=originalPieces.length){ //總共originalPieces.length
-
-            int n=r.nextInt(originalPieces.length);
-            if(al.contains(n))
-                continue;     //重複的不加入
-            else
-                al.add(n);
-            Log.d("random" , String.valueOf(al));
-        }
+        Log.d("test_random", "1");
         for (int i = 0; i < originalPieces.length; i++) { //originalPieces.length = 12
 
-
+            Log.d("test_random", "2");
             scaledSurfacePuzzlePieces[i] = new BitmapDrawable(getResources(),originalPieces[i]);
             ispieceLocked[i] = false;
             isgrabed[i] = false;
             // Top left is (0,0) in Android canvas
 
-            int topLeftX = 20;
-            int topLeftY = 180* i+ LOCK_ZONE_TOP;
+            int topLeftX = LOCK_ZONE_LEFT;
+            int topLeftY = 180* al.get(i)+ LOCK_ZONE_TOP;
 
             scaledSurfacePuzzlePieces[i].setBounds(topLeftX, topLeftY,
-                    topLeftX + MAX_PUZZLE_PIECE_SIZE, topLeftY + MAX_PUZZLE_PIECE_SIZE);  //畫成100 100
+                    topLeftX + MAX_PUZZLE_PIECE_SIZE, topLeftY + MAX_PUZZLE_PIECE_SIZE);
+            Log.d("bound", i + " top = " + String.valueOf(topLeftY) +
+                        " , Bottom = " + String.valueOf(topLeftY + MAX_PUZZLE_PIECE_SIZE)); //120 , 120
         }
 
 
@@ -171,8 +162,10 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        canvas.drawARGB(255,45,215,99); //
+        if(canvas == null){
+            return;
+        }
+        canvas.drawColor(Color.WHITE); //
 
 
         for (int bmd = 0; bmd < scaledSurfacePuzzlePieces.length; bmd++) {
@@ -212,32 +205,46 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
                 x_up = xPos;
                 y_up = yPos;
                 Log.d("touch", "found = "+ grab);
-                if(grab > -1){
-                    PuzzleCompactSurface.setGrab(grab, true);
-                    isgrabed[grab] = true;
-                }
-                if(x_down!=0 && y_down!=0){
 
+                if(x_down!=0 && y_down!=0){
                     if(y_down - y_up > 100 && Math.abs(x_down - x_up) < 200 ) {
                         Log.d("touch", "upup"); //往上滑
                         for (int i = 0; i < scaledSurfacePuzzlePieces.length; i++) {
                             Rect rect = scaledSurfacePuzzlePieces[i].copyBounds();
-                            rect.top -= 180;
-                            rect.bottom -= 180;
+                            if((rect.top <= LOCK_ZONE_TOP+ 180*0) &&
+                                    rect.bottom <= LOCK_ZONE_TOP+ 180*0+MAX_PUZZLE_PIECE_SIZE){
+                                Log.d("touch" , "up over");
+                                rect.top = 180*(scaledSurfacePuzzlePieces.length-1)+ LOCK_ZONE_TOP;
+                                rect.bottom = 180*(scaledSurfacePuzzlePieces.length-1)+ LOCK_ZONE_TOP+MAX_PUZZLE_PIECE_SIZE;
+                            }else{
+                                rect.top -= 180;
+                                rect.bottom -= 180;
+                            }
+
                             scaledSurfacePuzzlePieces[i].setBounds(rect);
                         }
-
                     }
                     else if(y_down - y_up < -120 && Math.abs(x_down - x_up) < 200 ) {
                         Log.d("touch", "down"); //往下滑
                         for (int i = 0; i < scaledSurfacePuzzlePieces.length; i++) {
                             Rect rect = scaledSurfacePuzzlePieces[i].copyBounds();
-                            rect.top += 180;
-                            rect.bottom += 180;
+                            if((rect.top >= LOCK_ZONE_TOP+ 180* (scaledSurfacePuzzlePieces.length-1)) &&
+                                    rect.bottom >= LOCK_ZONE_TOP+ 180* (scaledSurfacePuzzlePieces.length-1)+MAX_PUZZLE_PIECE_SIZE){
+                               Log.d("touch" , "over");
+                                rect.top = 180* 0+ LOCK_ZONE_TOP;
+                                rect.bottom = 180* 0+ LOCK_ZONE_TOP+MAX_PUZZLE_PIECE_SIZE;
+                            }else{
+                                rect.top += 180;
+                                rect.bottom += 180;
+                            }
+
                             scaledSurfacePuzzlePieces[i].setBounds(rect);
                         }
-
-
+                    }else if(Math.abs(y_down - y_up) < 8){
+                        if(grab > -1){
+                            PuzzleCompactSurface.setGrab(grab, true);
+                            isgrabed[grab] = true;
+                        }
                     }
                 }
                 break;
@@ -259,6 +266,22 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
     }
 
     public void Random_puzzle(){
+        Random r = new Random();
+        al=new ArrayList<Integer>();
+        while(al.size()<originalPieces.length){ //總共originalPieces.length
+
+            int n=r.nextInt(originalPieces.length);
+            Log.d("random" , n+"");
+            Log.d("random1" , String.valueOf(al));
+            if(al.contains(n))
+                continue;     //重複的不加入
+            else {
+                al.add(n);
+                Log.d("random2" , String.valueOf(al));
+            }
+            Log.d("random3" , String.valueOf(al));
+        }
+        Log.d("random" , "bye random_puzzle");
 
     }
 

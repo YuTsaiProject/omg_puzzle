@@ -1,26 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:id="@+id/linear_main"
     tools:context="com.project.game.omg_puzzle.PuzzleActivity">
+    <LinearLayout
+        android:id="@+id/linFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/linMain"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.87"
+            android:orientation="horizontal"
+            android:background="#00ff00">
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linRight"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.13"
+            android:orientation="horizontal"
+            android:background="#ff0000">>
+        </LinearLayout>
+    </LinearLayout>
+
     <fragment
         android:id="@+id/fragment_main"
         android:name="com.project.game.omg_puzzle.Puzzle_main"
-        android:layout_width="0dp"
+        android:layout_width="560dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.87"
+        app:layout_anchor="@id/linMain"
+        app:layout_anchorGravity="left"
         tools:layout="@layout/fragment_puzzle_main" />
+
     <fragment
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.13"
         android:id="@+id/fragment_right"
         android:name="com.project.game.omg_puzzle.Puzzle_Right"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        app:layout_anchor="@id/linRight"
+        app:layout_anchorGravity="right"
         tools:layout="@layout/fragment_puzzle__right" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/linMain"
+        app:layout_anchorGravity="left|bottom"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_menu_help"/>
 
-</LinearLayout>
+
+    <include layout="@layout/fab_layout" />
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>
+

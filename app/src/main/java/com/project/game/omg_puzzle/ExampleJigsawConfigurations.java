@@ -1,56 +1,9 @@
 package com.project.game.omg_puzzle;
 
 import android.os.Bundle;
+import android.util.Log;
 
 public final class ExampleJigsawConfigurations {
-
-    public static Bundle getKittenExample() { //回傳Bundle至PuzzleActitivy
-        // Initialization
-        Bundle config = new Bundle();
-
-        Bundle pieces = new Bundle();
-        Bundle grid = new Bundle();
-        Bundle image = new Bundle();
-        Bundle board = new Bundle();
-
-        // Image
-        image.putBoolean("is_local", true);
-        image.putInt("img_id", R.drawable.kitten_large);
-        image.putString("img_url", null);
-        image.putInt("img_w", 1024);
-        image.putInt("img_h", 681);
-
-        // Grid
-        grid.putInt("nrows", 2);
-        grid.putInt("ncols", 3);
-        grid.putInt("cellw", 256);
-        grid.putInt("cellh", 256);
-
-        // Pieces
-        Bundle p;
-        String key;
-        for (int h = 0; h < 2; h++) {
-            for (int w = 0; w < 3; w++) {
-                key = "k" + String.valueOf(w) + String.valueOf(h);
-                p = new Bundle();
-                p.putInt("l", -1);
-                p.putString("pid", key);
-                p.putBoolean("b", false);
-                p.putInt("x", w*(1024/3));
-                p.putInt("y", h*(681/2));
-                p.putInt("r", h);
-                p.putInt("c", w);
-                pieces.putBundle(key, p);
-            }
-        }
-
-        // Add subbundles to config bundle
-        config.putBundle("pieces", pieces);
-        config.putBundle("grid", grid);
-        config.putBundle("image", image);
-
-        return config;
-    }
 
     /**
      * For documentation supporting this example, see:
@@ -74,8 +27,8 @@ public final class ExampleJigsawConfigurations {
 
         grid.putInt("x", 200);
         grid.putInt("y", 150);
-        grid.putInt("ncols", 4);
-        grid.putInt("nrows", 3);
+        grid.putInt("ncols", 8);
+        grid.putInt("nrows", 6);
         grid.putInt("cellw", 100);
         grid.putInt("cellh", 100);
 
@@ -100,9 +53,9 @@ public final class ExampleJigsawConfigurations {
 
         img.putString("img_url", "" +
                 "");
-        img.putInt("img_local", R.drawable.happy_kitten);
-        img.putInt("img_w", 1600);
-        img.putInt("img_h", 1200);
+        img.putInt("img_local", R.drawable.test);
+        img.putInt("img_w", 267);
+        img.putInt("img_h", 189);
 
         // Pieces
         Bundle p;
@@ -129,8 +82,9 @@ public final class ExampleJigsawConfigurations {
         config.putString("myId", "player1234-uid");
         config.putBundle("img", img);
         config.putBundle("scores", scores);
-
+        Log.d("config", "ExampleJigsaw");
         return config;
+
     }
 
     private ExampleJigsawConfigurations () {
