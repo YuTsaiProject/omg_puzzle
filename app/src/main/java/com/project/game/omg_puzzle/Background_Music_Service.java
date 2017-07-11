@@ -42,6 +42,7 @@ public class Background_Music_Service extends Service implements MediaPlayer.OnP
 
         try {
             mMediaPlayer.setDataSource(this, uri);
+
         } catch (Exception e) {
             Toast.makeText(this, "指定的音樂檔錯誤！", Toast.LENGTH_LONG)
                     .show();
@@ -56,12 +57,15 @@ public class Background_Music_Service extends Service implements MediaPlayer.OnP
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_PLAY))
+
             if (mbIsInitialised) {
                 mMediaPlayer.prepareAsync();
-                mbIsInitialised = false;
+                mMediaPlayer.setLooping(true);
+                mbIsInitialised = false;//update
             }
             else
                 mMediaPlayer.start();
+
         else if (intent.getAction().equals(ACTION_PAUSE))
             mMediaPlayer.pause();
         else if (intent.getAction().equals(ACTION_SET_REPEAT))
@@ -108,10 +112,10 @@ public class Background_Music_Service extends Service implements MediaPlayer.OnP
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+       // mMediaPlayer.release();
+      //  mMediaPlayer = null;
 
-        mbIsInitialised = true;
+        //mbIsInitialised = true;
     }
 
     @Override

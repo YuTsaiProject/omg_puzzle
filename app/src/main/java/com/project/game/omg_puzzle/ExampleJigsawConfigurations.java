@@ -27,8 +27,8 @@ public final class ExampleJigsawConfigurations {
 
         grid.putInt("x", 200);
         grid.putInt("y", 150);
-        grid.putInt("ncols", 8);
-        grid.putInt("nrows", 6);
+        grid.putInt("ncols", 8);     //在此更改拼圖切割欄數
+        grid.putInt("nrows", 6);    //在此更改拼圖切割列數
         grid.putInt("cellw", 100);
         grid.putInt("cellh", 100);
 

@@ -3,7 +3,6 @@ package com.project.game.omg_puzzle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -18,8 +17,7 @@ import android.widget.Toast;
 public class PuzzleActivity extends FragmentActivity
         implements Puzzle_main.OnFragmentInteractionListener, Puzzle_Right.OnFragmentInteractionListener{
 
-    private static PuzzleCompactSurface puzzleSurface;
-
+    // 功能列按鈕
     FloatingActionButton fab;
     FloatingActionButton fab1;
     FloatingActionButton fab2;
@@ -30,18 +28,20 @@ public class PuzzleActivity extends FragmentActivity
     FloatingActionButton fab7;
     FloatingActionButton fab8;
 
+    //用來顯示玩家遊戲名稱及拼圖完成度
     TextView userId, scores;
 
-    CoordinatorLayout rootLayout;
-
+    //功能列按鈕的動畫
     Animation show_fab_1;
     Animation hide_fab_1;
 
     private boolean FAB_Status = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //使螢幕變成全螢幕
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -52,14 +52,14 @@ public class PuzzleActivity extends FragmentActivity
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
 
-
         Intent it;
         it = new Intent(PuzzleActivity.this, Background_Music_Service.class);
         it.setAction(Background_Music_Service.ACTION_PLAY);
-        startService(it);
+        startService(it);    //開啟背景音樂
 
         setContentView(R.layout.activity_puzzle);
 
+        //保持螢幕一直開啟，不休眠
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -72,92 +72,92 @@ public class PuzzleActivity extends FragmentActivity
         fab7 = (FloatingActionButton) findViewById(R.id.fab_7);
         fab8 = (FloatingActionButton) findViewById(R.id.fab_8);
 
+
         userId = (TextView)findViewById(R.id.user_id);
         scores = (TextView)findViewById(R.id.scores);
 
-        userId.setText("珍紅茶妮妮");
-        scores.setText("0/100");
+        userId.setText("珍紅茶妮妮");   //待修改→向後台取得玩家暱稱
+        scores.setText("0/48");  //待修改→向後台取得拼圖完成度(已鎖定的拼塊數/總塊數)
 
         show_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_show);
         hide_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_hide);
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {   //總按鈕
             @Override
             public void onClick(View view) {
 
                 if (FAB_Status == false) {
                     //Display FAB menu
-                    Log.d("fab", "down");
                     expandFAB();
                     FAB_Status = true;
                 } else {
                     //Close FAB menu
-                    Log.d("fab", "up");
                     hideFAB();
                     FAB_Status = false;
                 }
             }
         });
 
-        fab1.setOnClickListener(new View.OnClickListener() {
+        fab1.setOnClickListener(new View.OnClickListener() {  //設定按鈕
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplication(), "ImageShow.class", Toast.LENGTH_SHORT).show();
-                Intent it = new Intent();
-                it.setClass(PuzzleActivity.this, ImageShow.class);
-                startActivity(it);
-            }
-        });
-
-        fab2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplication(), "SettingShow.class", Toast.LENGTH_SHORT).show();
                 Intent it = new Intent();
                 it.setClass(PuzzleActivity.this, SettingShow.class);
                 startActivity(it);
             }
         });
 
-        fab3.setOnClickListener(new View.OnClickListener() {
+        fab2.setOnClickListener(new View.OnClickListener() {  //全圖按鈕
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent();
+                it.setClass(PuzzleActivity.this, ImageShow.class);
+                startActivity(it);
+            }
+        });
+
+        fab3.setOnClickListener(new View.OnClickListener() {  //道具箱按鈕
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Floating Action Button 3", Toast.LENGTH_SHORT).show();
             }
         });
-        fab4.setOnClickListener(new View.OnClickListener() {
+        fab4.setOnClickListener(new View.OnClickListener() {  //拼圖寶箱按鈕
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplication(), "Floating Action Button 4", Toast.LENGTH_SHORT).show();
+                Intent it = new Intent();
+                it.setClass(PuzzleActivity.this, Puzzle_mainJigsawbox.class);
+                startActivity(it);
             }
         });
 
-        fab5.setOnClickListener(new View.OnClickListener() {
+        fab5.setOnClickListener(new View.OnClickListener() {  //藏拼圖按鈕
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Floating Action Button 5", Toast.LENGTH_SHORT).show();
             }
         });
 
-        fab6.setOnClickListener(new View.OnClickListener() {
+        fab6.setOnClickListener(new View.OnClickListener() {   //短訊箱按鈕
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Floating Action Button 6", Toast.LENGTH_SHORT).show();
             }
         });
-        fab7.setOnClickListener(new View.OnClickListener() {
+        fab7.setOnClickListener(new View.OnClickListener() {   //發送任務按鈕
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Floating Action Button 7", Toast.LENGTH_SHORT).show();
             }
         });
 
-        fab8.setOnClickListener(new View.OnClickListener() {
+        fab8.setOnClickListener(new View.OnClickListener() {   //任務列表按鈕
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplication(), "Floating Action Button 8", Toast.LENGTH_SHORT).show();
             }
         });
+
         Log.d("test", "PuzzleActivity_onCreated");
 
 
@@ -167,6 +167,7 @@ public class PuzzleActivity extends FragmentActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
     }
+
     private void expandFAB() {
 
         //Floating Action Button 1
@@ -297,11 +298,8 @@ public class PuzzleActivity extends FragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         Intent it;
         it = new Intent(PuzzleActivity.this, Background_Music_Service.class);
-        stopService(it);
-
-
+        stopService(it);  //關閉程式時，音樂結束
     }
 }

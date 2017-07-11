@@ -20,13 +20,16 @@ public class JigsawPuzzle {
 
     private boolean backgroundTextureOn = true;
     private Bitmap backgroundTexture;
+    private Bitmap backgroundTexture2;
+    private int backgroundselect;
 
     private Bundle config;
 
     private Bitmap puzzleResult;
     private Bitmap[] puzzlePiecesArray;
     private int[][] puzzlePieceTargetPositions;
-    private boolean[] pieceLocked;
+
+    private boolean[] pieceLocked;  //拼塊是否已完成(鎖定)
 
     private Context mContext;
 
@@ -49,34 +52,47 @@ public class JigsawPuzzle {
      * @param context
      * @param configuration
      */
-    public JigsawPuzzle(Context context, Bundle configuration) {
+    public JigsawPuzzle(Context context, Bundle configuration, int background) {
         config = configuration;
         mContext = context;
+        backgroundselect = background;
 
         loadPuzzleResources(mContext.getResources(),
-                config.getBundle("img").getInt("img_local"), 400, 300); //索取圖片，設定大小，長300，寬400
+                config.getBundle("img").getInt("img_local"), 800, 600);
+        //索取圖片，設定大小，根據拼圖大小*欄數(列數)
 
         loadPuzzleConfiguration();
 
     }
 
     public void loadPuzzleResources (Resources res, int resourceId, long targetWidth, long targetHeight) {
+
          count++; //第一次背景呼叫decodePuzzleBitmapFromResource
+        if(backgroundselect == 1){
+            Bitmap decodedbackgroundTexture = decodePuzzleBitmapFromResource(res, R.drawable.surfaceview_main, 1000, 1000);
+            backgroundTexture = decodedbackgroundTexture;
+            Bitmap decodedbackgroundTexture2 = decodePuzzleBitmapFromResource(res, R.drawable.surfaceview_main2, 1000, 1000);
+            backgroundTexture2 = decodedbackgroundTexture2;
+        }else if(backgroundselect == 2){
+            Bitmap decodedbackgroundTexture = decodePuzzleBitmapFromResource(res, R.drawable.surfaceview_right, 1000, 1000);
+            backgroundTexture = decodedbackgroundTexture;
+        }else if(backgroundselect == 0){
 
-        backgroundTexture = decodePuzzleBitmapFromResource(res, R.drawable.test3, 1000, 1000);
-        Log.d("loadPuzzleResource", "getwidth/getheight_" + String.valueOf(count) + " : " + backgroundTexture.getWidth() + " , "+  backgroundTexture.getHeight());
+        }
+
+
+
         count++; //第二次照片呼叫decodePuzzleBitmapFromResource
-
         Bitmap decodedPuzzleResource = decodePuzzleBitmapFromResource(
                 res, resourceId, targetWidth, targetHeight);
-       //400,300
 
-        puzzleResult = decodedPuzzleResource;
-        puzzleXDimension = decodedPuzzleResource.getWidth(); // 800,600
+        puzzleResult = decodedPuzzleResource;      //圖片縮小後的尺寸
+        puzzleXDimension = decodedPuzzleResource.getWidth();
         puzzleYDimension = decodedPuzzleResource.getHeight();
-        Log.d("loadPuzzleResource", "getwidth/getheight_" + String.valueOf(count) + " : " + decodedPuzzleResource.getWidth() + " , "+  decodedPuzzleResource.getHeight());
-    //   Toast.makeText(this.mContext, puzzleXDimension + " , " + puzzleYDimension, Toast.LENGTH_LONG).show();
 
+
+        Log.d("loadPuzzleResource", "getwidth/getheight_" + String.valueOf(count) + " : "
+                + decodedPuzzleResource.getWidth() + " , "+  decodedPuzzleResource.getHeight());
 
     }
 
@@ -90,7 +106,7 @@ public class JigsawPuzzle {
      *
      *  Bitmap Loading Code from Android Developer lesson: "Loading Large Bitmaps Efficiently"
      */
-    public static Bitmap decodePuzzleBitmapFromResource (   //利用decodeFile()將手機裡的圖檔轉換成Bitmap物件
+    public static Bitmap decodePuzzleBitmapFromResource (
             Resources res, int resId, long targetWidth, long targetHeight) {
 
         // Load only the dimensions of the puzzle image
@@ -101,7 +117,7 @@ public class JigsawPuzzle {
         // Calculate ratio to scale puzzle bitmap
         options.inSampleSize = calculateScaledPuzzleSize(options, targetWidth, targetHeight);
 
-                // Decode puzzle resource image to bitmap from computed ratio
+        // Decode puzzle resource image to bitmap from computed ratio
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
     }
@@ -118,16 +134,13 @@ public class JigsawPuzzle {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int imageScaleRatio = 1;
-        Log.d("calculateScaled", "targetwidth/targetheight_" + String.valueOf(count) + " : " + targetWidth + " , "+ targetHeight);
 
         if (height > targetHeight || width > targetWidth) {
 
             final int heightRatio = Math.round((float) height / (float) targetHeight);
             final int widthRatio = Math.round((float) width / (float) targetWidth);
-            Log.d("calculateScaled", "widthRatio/heightRatio_" + String.valueOf(count) + " : " + widthRatio + " , "+ heightRatio);
 
             imageScaleRatio = heightRatio < widthRatio ? heightRatio : widthRatio;
-            Log.d("calculateScaled", "imageScaleRatio_" + String.valueOf(count) + " : " +imageScaleRatio);
 
         }
 
@@ -157,9 +170,7 @@ public class JigsawPuzzle {
         puzzlePiecesArray = new Bitmap[puzzleGridX * puzzleGridY];
         pieceLocked = new boolean[puzzleGridX * puzzleGridY];
 
-
-
-        // Generate array of bitmaps
+        // 在此切割圖片成拼塊，產生Bitmap的陣列
         int counter = 0;
         for (int w = 0; w < puzzleGridX; w++) {
             for (int h = 0; h < puzzleGridY; h++) {
@@ -192,9 +203,8 @@ public class JigsawPuzzle {
         Bundle image = config.getBundle("img");
         Bundle pieces = config.getBundle("pieces");
 
-
-        puzzleGridX = grid.getInt("ncols"); //4
-        puzzleGridY = grid.getInt("nrows"); //3
+        puzzleGridX = grid.getInt("ncols");
+        puzzleGridY = grid.getInt("nrows");
 
         puzzlePieceHeight = puzzleYDimension / puzzleGridY; //200
         puzzlePieceWidth = puzzleXDimension / puzzleGridX; //200
@@ -204,23 +214,23 @@ public class JigsawPuzzle {
         puzzlePiecesArray = new Bitmap[puzzleGridX * puzzleGridY];
         pieceLocked = new boolean[puzzleGridX * puzzleGridY];
 
-
-
+        // 在此切割圖片成拼塊，產生Bitmap的陣列
         int counter = 0;
         for (int w = 0; w < puzzleGridX; w++) {
             for (int h = 0; h < puzzleGridY; h++) {
                 puzzlePiecesArray[counter] = Bitmap.createBitmap(puzzleResult, w*puzzlePieceWidth, h*puzzlePieceHeight,
                         puzzlePieceWidth, puzzlePieceHeight);
-                Log.d("loadPuzzleconfig","createBitmap: " + w*puzzlePieceWidth+" , " +h*puzzlePieceHeight +" , " + puzzlePieceWidth+" , "+ puzzlePieceHeight);
+                Log.d("loadPuzzleconfig","createBitmap: " + w*puzzlePieceWidth+" , "
+                        +h*puzzlePieceHeight +" , " + puzzlePieceWidth+" , "+ puzzlePieceHeight);
 
                 pieceLocked[counter] = false;
-
 
                 puzzlePieceTargetPositions[w][h] = counter;
 
                 counter++;
             }
         }
+        releaseBitmap();
 
     }
 
@@ -254,25 +264,29 @@ public class JigsawPuzzle {
     public Bitmap getBackgroundTexture() {
         return backgroundTexture;
     }
+    public Bitmap getBackgroundTexture2() {
+        return backgroundTexture2;
+    }
 
-    public void setPieceLocked (int piece, boolean locked) {
+   /* public void setPieceLocked (int piece, boolean locked) {
         if (piece >= 0 && piece < pieceLocked.length) {
             pieceLocked[piece] = locked;
         }
-    }
+    }*/
 
-    public boolean isPieceLocked(int piece) {
-        if (piece >= 0 && piece < pieceLocked.length) {
-            return pieceLocked[piece];
-        } else {
+   /*public boolean isPieceLocked(int piece) {
+       if (piece >= 0 && piece < pieceLocked.length) {
+           return pieceLocked[piece];
+       } else {
             return false;
 
         }
-    }
+     }*/
 
     /** Jigsaw Puzzle Message Handlers - Probably Override **/
     public void onJigsawEventPieceGrabbed (int index, int topLeftX, int topLeftY) {
        // Toast.makeText(this.mContext, "grab" + " , found: " + index, Toast.LENGTH_SHORT).show();
+        //可以在此寫入播放音效程式
     }
 
     public void onJigsawEventPieceMoved (int index, int topLeftX, int topLeftY) {
@@ -281,5 +295,13 @@ public class JigsawPuzzle {
 
     public void onJigsawEventPieceDropped (int index, int topLeftX, int topLeftY) {
      //   Toast.makeText(this.mContext, "DROP" + " , found: " + index + ", topLeftX: " + topLeftX + " ,topLeftY: " + topLeftY , Toast.LENGTH_SHORT).show();
+        //可以在此寫入播放音效程式
+    }
+
+    public void releaseBitmap() {
+        if (puzzleResult != null) {
+            puzzleResult.recycle();
+            puzzleResult = null;
+        }
     }
 }

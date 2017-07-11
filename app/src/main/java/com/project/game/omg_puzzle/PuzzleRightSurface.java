@@ -25,35 +25,39 @@ import java.util.Random;
  */
 
 public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Callback {
+
     /** Surface Components **/
-    private PuzzleRightThead rightThead;
+    private PuzzleRightThead rightThread;
     private volatile boolean running = false;
     private int grab = -1;
 
     /** Puzzle and Canvas **/
     private int MAX_PUZZLE_PIECE_SIZE = 120;
-    private int LOCK_ZONE_LEFT = 40;
+    private int LOCK_ZONE_LEFT = 60;
     private int LOCK_ZONE_TOP = 20;
+
+    private int outsize_y;
 
     private JigsawPuzzle puzzle;
 
-    private  Bitmap[] originalPieces;
+    private BitmapDrawable backgroundImage;
+    private Bitmap[] originalPieces;
     private BitmapDrawable[] scaledSurfacePuzzlePieces;
-    private Rect[] scaledSurfaceTargetBounds;
 
     private Paint framePaint;
     private Context mcontext;
 
-    private static boolean[] ispieceLocked;
+    private static boolean[] ispieceLocked;       //與PuzzleCompactSurface共用
     private static boolean[] isgrabed;
 
-
-    private List<Integer> al;
+    private List<Integer> al;     //填入亂數
 
     private  int x_down ;
     private  int x_up ;
     private  int y_down ;
     private int y_up ;
+
+
 
     public PuzzleRightSurface(Context context) {
         super(context);
@@ -61,57 +65,54 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
 
         getHolder().addCallback(this); //利用getHolder()取得SurfaceHolder的引用對象
 
-       rightThead = new PuzzleRightThead(getHolder(), context, this);
+        rightThread = new PuzzleRightThead(getHolder(), context, this);
 
 
         setFocusable(true);
-
 
     }
 
     public PuzzleRightSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
-
     }
 
     public PuzzleRightSurface(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
     }
+
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) { //這個Activity得到或者失去焦點的時候就會call
-        if (!hasWindowFocus) rightThead.pause();
 
+        if (!hasWindowFocus) rightThread.pause();
         Log.d("PuzzleSurface", "onWindowsFocusChanged");
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) { //在surface的大小發生改變時
-
-        rightThead.setSurfaceSize(width, height);  // 1184,720
-
+        rightThread.setSurfaceSize(width, height);  // 1184,720
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) { //在創建時，一般在這裡調用畫圖的線程。
-        rightThead.setRunning(true);
-        rightThead.start();
+        rightThread.setRunning(true);
+        rightThread.startPuzzle();
+        rightThread.start();
 
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {//銷毀時，一般在這裡將畫圖的線程停止、釋放。
         boolean retry = true;
-        rightThead.setRunning(false);
+        rightThread.setRunning(false);
         while (retry) {
             try {
-                rightThead.join();
+                rightThread.join();
                 retry = false;
+                Log.d("Puzzle_Right", "surfaceDestroyed()");
             } catch (InterruptedException e) {
             }
         }
     }
-
 
     public void setPuzzle(JigsawPuzzle jigsawPuzzle) {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE); //獲得窗口管理對象
@@ -120,29 +121,34 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         display.getSize(outSize);
 
         puzzle = jigsawPuzzle;
+        outsize_y = outSize.y;
 
         framePaint = new Paint();
         framePaint.setColor(Color.RED);
         framePaint.setStyle(Paint.Style.STROKE);
         framePaint.setStrokeWidth(10);
         framePaint.setTextSize(20);
-        // Log.d("outsizeX: ",  String.valueOf( outSize.x));
-        // Log.d("outsizeY: ",  String.valueOf( outSize.y));
+
         /** Initialize drawables from puzzle pieces **/
         originalPieces = puzzle.getPuzzlePiecesArray();
         int[][] positions = puzzle.getPuzzlePieceTargetPositions();
         int[] dimensions = puzzle.getPuzzleDimensions();
         ispieceLocked = new boolean[originalPieces.length];
         isgrabed = new boolean[originalPieces.length];
+
+        if (puzzle.isBackgroundTextureOn()) {
+            backgroundImage = new BitmapDrawable(puzzle.getBackgroundTexture());
+            backgroundImage.setBounds(-53, -70, 400, outsize_y+80);
+        }
+
         Random_puzzle();
-        Log.d("test_random", "0");
+
         scaledSurfacePuzzlePieces = new BitmapDrawable[originalPieces.length];
-        scaledSurfaceTargetBounds = new Rect[originalPieces.length];
-        Log.d("test_random", "1");
+
         for (int i = 0; i < originalPieces.length; i++) { //originalPieces.length = 12
 
-            Log.d("test_random", "2");
             scaledSurfacePuzzlePieces[i] = new BitmapDrawable(getResources(),originalPieces[i]);
+
             ispieceLocked[i] = false;
             isgrabed[i] = false;
             // Top left is (0,0) in Android canvas
@@ -151,29 +157,29 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
             int topLeftY = 180* al.get(i)+ LOCK_ZONE_TOP;
 
             scaledSurfacePuzzlePieces[i].setBounds(topLeftX, topLeftY,
-                    topLeftX + MAX_PUZZLE_PIECE_SIZE, topLeftY + MAX_PUZZLE_PIECE_SIZE);
-            Log.d("bound", i + " top = " + String.valueOf(topLeftY) +
-                        " , Bottom = " + String.valueOf(topLeftY + MAX_PUZZLE_PIECE_SIZE)); //120 , 120
+            topLeftX + MAX_PUZZLE_PIECE_SIZE, topLeftY + MAX_PUZZLE_PIECE_SIZE);
+            //scaledSurfacePuzzlePieces[i].setBounds(0, 0,0,0);
+
         }
-
-
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         if(canvas == null){
             return;
         }
         canvas.drawColor(Color.WHITE); //
 
+        if (puzzle.isBackgroundTextureOn()) {
+            backgroundImage.draw(canvas);    //畫背景
+        }
 
         for (int bmd = 0; bmd < scaledSurfacePuzzlePieces.length; bmd++) {
             if (!ispieceLocked[bmd] && !isgrabed[bmd]) {
                 scaledSurfacePuzzlePieces[bmd].draw(canvas);
             }
-
-
         }
     }
 
@@ -187,10 +193,11 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
             case MotionEvent.ACTION_DOWN:
                 x_down = xPos;
                 y_down = yPos;//手指按下去
+
                 for (int i = 0; i < scaledSurfacePuzzlePieces.length; i++) {
                     Rect place = scaledSurfacePuzzlePieces[i].copyBounds();
 
-                    if (place.contains(xPos, yPos) && !puzzle.isPieceLocked(i)) {
+                    if (place.contains(xPos, yPos) && ! ispieceLocked[i]) {
                         grab = i;
                         //按下拼圖且未被鎖定，即觸發的事件 → 拼圖被撿起
                         puzzle.onJigsawEventPieceGrabbed(grab, place.left, place.top);
@@ -198,7 +205,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
                 }
                 break;
 
-            case MotionEvent.ACTION_MOVE: //手指放在屏幕上
+            case MotionEvent.ACTION_MOVE: //手指放在屏幕上，在這裡不讓使用者拖曳
 
                 break;
             case MotionEvent.ACTION_UP:
@@ -242,27 +249,46 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
                         }
                     }else if(Math.abs(y_down - y_up) < 8){
                         if(grab > -1){
-                            PuzzleCompactSurface.setGrab(grab, true);
                             isgrabed[grab] = true;
                         }
                     }
                 }
                 break;
-
         }
-
 
         return true;
     }
 
     public PuzzleRightThead getThread () {
-        return rightThead;
+        return rightThread;
     }
+
     public static void setPieceLocked(int locked, boolean isLocked){
-        ispieceLocked[locked] = isLocked;
-        Log.d("touch", "lock = " + locked + " islocked = " + isLocked );}
+        if (locked >= 0 && locked < ispieceLocked.length) {
+            ispieceLocked[locked] = isLocked;
+        }
+    }
+
+    public static boolean isPieceLocked(int piece) {
+        if (piece >= 0 && piece < ispieceLocked.length) {
+            return ispieceLocked[piece];
+        } else {
+            return false;
+        }
+    }
+
     public static void setGrab(int grab, boolean isGrabed){
+        if(grab >= 0 && grab < isgrabed.length)
         isgrabed[grab] = isGrabed;
+    }
+
+    public static boolean isPieceGrab(int piece) {
+        if (piece >= 0 && piece < isgrabed.length) {
+            return isgrabed[piece];
+        } else {
+            return false;
+
+        }
     }
 
     public void Random_puzzle(){
@@ -284,5 +310,6 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         Log.d("random" , "bye random_puzzle");
 
     }
+
 
 }

@@ -69,7 +69,7 @@ public class Puzzle_Right extends Fragment {
         Bundle config = ExampleJigsawConfigurations.getRcatKittenExample();
         right_surface = new PuzzleRightSurface(this.getContext());
 
-        JigsawPuzzle jigsawPuzzle = new JigsawPuzzle(this.getContext(), config);
+        JigsawPuzzle jigsawPuzzle = new JigsawPuzzle(this.getContext(), config, 2);
 
         right_surface.setPuzzle(jigsawPuzzle);
 
@@ -117,6 +117,7 @@ public class Puzzle_Right extends Fragment {
     }
     public void onPause() {
         super.onPause();
+        Log.d("Puzzle_Right", "onPause()");
         right_surface.getThread().pause();
     }
 
@@ -129,6 +130,7 @@ public class Puzzle_Right extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d("Puzzle_Right", "onResume()");
     }
 
 }

@@ -59,14 +59,13 @@ public class PuzzleThread extends Thread {
 
     public void setState(int stateToSet) {
         synchronized (surfaceHolder) {
-            // TODO Message Handling
+            gameState = stateToSet;
         }
     }
 
     public Bundle saveState(Bundle map) {
         synchronized (surfaceHolder) {
             if (map != null) {
-
 
             }
         }

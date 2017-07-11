@@ -72,7 +72,7 @@ public class Puzzle_main extends Fragment {
         Bundle config = ExampleJigsawConfigurations.getRcatKittenExample();
         main_surface = new PuzzleCompactSurface(this.getContext());
 
-        JigsawPuzzle jigsawPuzzle = new JigsawPuzzle(this.getContext(), config);
+        JigsawPuzzle jigsawPuzzle = new JigsawPuzzle(this.getContext(), config, 1);
 
         main_surface.setPuzzle(jigsawPuzzle);
 

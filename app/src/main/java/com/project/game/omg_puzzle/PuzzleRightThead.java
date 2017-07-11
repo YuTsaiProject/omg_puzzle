@@ -3,6 +3,7 @@ package com.project.game.omg_puzzle;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -36,12 +37,14 @@ public class PuzzleRightThead extends Thread {
     }
 
     public void startPuzzle() {
+        Log.d("Puzzle_RightThread", "startPuzzle()");
         synchronized (surfaceHolder) {
             setState(STATE_RUNNING);
         }
     }
 
     public void pause() {
+        Log.d("Puzzle_RightThread", "pause()");
         synchronized (surfaceHolder) {
             if (gameState == STATE_RUNNING) setState(STATE_PAUSE);
         }
@@ -83,6 +86,7 @@ public class PuzzleRightThead extends Thread {
 
     @Override
     public void run() {
+        Log.d("Puzzle_RightThread", "run()");
         while (running) {
             Canvas canvas=null;
             try {

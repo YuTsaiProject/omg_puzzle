@@ -56,10 +56,12 @@
         app:layout_anchor="@id/linMain"
         app:layout_anchorGravity="left|bottom"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_help"/>
+        app:backgroundTint="#EFE756"
+        android:src="@drawable/fab_expand"/>
 
     <include layout="@layout/user_id_layout" />
     <include layout="@layout/fab_layout" />
+    <include layout="@layout/img_logo"/>
 
 
 

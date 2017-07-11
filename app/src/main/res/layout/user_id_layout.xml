@@ -4,7 +4,9 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center">
+        android:layout_gravity="top|left"
+        android:layout_marginTop="-5dp"
+        android:layout_marginLeft="45dp">
         <TextView
             android:id="@+id/user_id"
             android:layout_width="wrap_content"
@@ -15,12 +17,20 @@
             android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
+        <ImageView
+            android:id="@+id/img_userid"
+            android:layout_width="170dp"
+            android:layout_height="47dp"
+            android:layout_marginTop="-4dp"
+            android:src="@drawable/img_playerid" />
+
     </FrameLayout>
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|right"
-        android:layout_marginRight="150dp">
+        android:layout_gravity="top|center"
+        android:layout_marginTop="-5dp"
+        android:layout_marginRight="30dp">
 
         <TextView
             android:id="@+id/scores"
@@ -31,6 +41,13 @@
             android:elevation="16dp"
             android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ImageView
+            android:id="@+id/img_scores"
+            android:layout_width="107dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/img_playerscore" />
     </FrameLayout>
 
 </FrameLayout>
