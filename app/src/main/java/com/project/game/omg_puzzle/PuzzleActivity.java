@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,8 +35,11 @@ public class PuzzleActivity extends FragmentActivity
     //功能列按鈕的動畫
     Animation show_fab_1;
     Animation hide_fab_1;
+    final static private int LAUNCH_GAME = 0;
 
     private boolean FAB_Status = false;
+
+    int folder_piece[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +131,7 @@ public class PuzzleActivity extends FragmentActivity
             public void onClick(View v) {
                 Intent it = new Intent();
                 it.setClass(PuzzleActivity.this, Puzzle_mainJigsawbox.class);
-                startActivity(it);
+                startActivityForResult(it,LAUNCH_GAME);
             }
         });
 
@@ -165,7 +169,15 @@ public class PuzzleActivity extends FragmentActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onFragmentInteraction(int [] folder_piece) {
+        FragmentManager fgm = getSupportFragmentManager();
+        Puzzle_Right pr = (Puzzle_Right)fgm.findFragmentById(R.id.fragment_right);
+        pr.updateRight(folder_piece);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri){
+
     }
 
     private void expandFAB() {
@@ -296,10 +308,69 @@ public class PuzzleActivity extends FragmentActivity
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                | View.SYSTEM_UI_FLAG_IMMERSIVE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != LAUNCH_GAME)
+            return;
+
+        switch (resultCode) {
+            case RESULT_OK:
+                Bundle bundle = data.getExtras();
+
+                int folder_piece_size = bundle.getInt("SELECT_FOLDER_SIZE");
+                folder_piece = new int[folder_piece_size];
+                folder_piece = bundle.getIntArray("SELECT_FOLDER_PIECES");
+                Log.d("byebye", String.valueOf(folder_piece_size));
+                for(int i=0;i<folder_piece_size;i++){
+                    Log.d("byebye", String.valueOf(folder_piece[i]));
+                }
+
+                 onFragmentInteraction(folder_piece);
+
+                break;
+            case RESULT_CANCELED:
+                break;
+
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("byebye", "PuzzleActivity_onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("byebye", "PuzzleActivity_onResume");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Intent it;
         it = new Intent(PuzzleActivity.this, Background_Music_Service.class);
         stopService(it);  //關閉程式時，音樂結束
     }
+
+
+
 }

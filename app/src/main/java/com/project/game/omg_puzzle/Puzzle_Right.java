@@ -1,7 +1,6 @@
 package com.project.game.omg_puzzle;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -78,9 +77,9 @@ public class Puzzle_Right extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(int [] folder_piece) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteraction(folder_piece);
         }
     }
 
@@ -93,6 +92,17 @@ public class Puzzle_Right extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    public void updateRight(int [] folder_piece){
+        right_surface.setFolderPieceShow(folder_piece);
+       Log.d("byebye", "updatRight");
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -113,11 +123,11 @@ public class Puzzle_Right extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(int [] folder_piece);
     }
     public void onPause() {
         super.onPause();
-        Log.d("Puzzle_Right", "onPause()");
+        Log.d("byebye", "onPause()");
         right_surface.getThread().pause();
     }
 
@@ -130,7 +140,8 @@ public class Puzzle_Right extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Puzzle_Right", "onResume()");
+        Log.d("byebye", "onResume()");
     }
+
 
 }

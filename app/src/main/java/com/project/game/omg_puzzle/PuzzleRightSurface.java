@@ -49,6 +49,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
 
     private static boolean[] ispieceLocked;       //與PuzzleCompactSurface共用
     private static boolean[] isgrabed;
+    private static boolean[] isPieceSelected;
 
     private List<Integer> al;     //填入亂數
 
@@ -135,6 +136,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         int[] dimensions = puzzle.getPuzzleDimensions();
         ispieceLocked = new boolean[originalPieces.length];
         isgrabed = new boolean[originalPieces.length];
+        isPieceSelected = new boolean[originalPieces.length];
 
         if (puzzle.isBackgroundTextureOn()) {
             backgroundImage = new BitmapDrawable(puzzle.getBackgroundTexture());
@@ -151,6 +153,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
 
             ispieceLocked[i] = false;
             isgrabed[i] = false;
+            isPieceSelected[i] = false;
             // Top left is (0,0) in Android canvas
 
             int topLeftX = LOCK_ZONE_LEFT;
@@ -177,7 +180,7 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         }
 
         for (int bmd = 0; bmd < scaledSurfacePuzzlePieces.length; bmd++) {
-            if (!ispieceLocked[bmd] && !isgrabed[bmd]) {
+            if (!ispieceLocked[bmd] && !isgrabed[bmd] && isPieceSelected[bmd]) {
                 scaledSurfacePuzzlePieces[bmd].draw(canvas);
             }
         }
@@ -309,6 +312,34 @@ public class PuzzleRightSurface extends SurfaceView implements SurfaceHolder.Cal
         }
         Log.d("random" , "bye random_puzzle");
 
+    }
+
+    public void setFolderPieceShow(int[] folderPieceShow){
+
+        for(int i=0; i<isPieceSelected.length;i++){
+            isPieceSelected[i]=false;
+            for(int k=0; k<folderPieceShow.length;k++){
+                if(i==folderPieceShow[k]){
+                    isPieceSelected[i]=true;
+                }
+            }
+        }
+
+        int count = 0;
+        for(int j=0;j<isPieceSelected.length;j++){
+            if(isPieceSelected[j]) {
+                int topLeftX = LOCK_ZONE_LEFT;
+                int topLeftY = 180 * count + LOCK_ZONE_TOP;
+
+                scaledSurfacePuzzlePieces[j].setBounds(topLeftX, topLeftY,
+                        topLeftX + MAX_PUZZLE_PIECE_SIZE, topLeftY + MAX_PUZZLE_PIECE_SIZE);
+                count++;
+            }else if(!isPieceSelected[j]){
+                scaledSurfacePuzzlePieces[j].setBounds(0,0,0,0);
+            }
+
+        }
+        Log.d("byebye", "setFolderPieceShow");
     }
 
 
